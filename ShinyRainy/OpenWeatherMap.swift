@@ -14,12 +14,14 @@ fileprivate enum OpenWeatherMapError: Error {
 }
 
 struct OpenWeatherMap {
-    private let urlPrefix = "http://api.openweathermap.org/data/"
-    private let apiVersion = "2.5"
-    private let urlSuffix = "/weather?"
-    private let latPrefix = "lat="
-    private let lonPrefix = "&lon="
-    private let appIDPrefix = "&appid="
+    let urlPrefix = "http://api.openweathermap.org/data/"
+    let imgURLPrefix = "http://openweathermap.org/img/w/"
+    let imgExtension = ".png"
+    let apiVersion = "2.5"
+    let urlSuffix = "/weather?"
+    let latPrefix = "lat="
+    let lonPrefix = "&lon="
+    let appIDPrefix = "&appid="
     private let appID = "2ee10853d63f5912293970201aa04a75"
     private var _latitude: Double
     private var _longitude: Double

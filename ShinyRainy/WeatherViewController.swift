@@ -24,9 +24,18 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.delegate = self
         tableView.dataSource = self
         currentWeather.downloadWeatherDetails {
-            print("completed")
+            self.updateUI()
         }
         // Do any additional setup after loading the view, typically from a nib.
+    }
+
+    private func updateUI() {
+        locationLabel.text = currentWeather.cityName
+        let plusSign = currentWeather.currentTemp > 0 ? "+" : ""
+        currentTempLabel.text = String(format:"\(plusSign)%.0f", currentWeather.currentTemp)
+        currentWeatherTypeLabel.text = currentWeather.weatherType
+        dateLabel.text = currentWeather.date
+        currentWeatherImage.image = currentWeather.image
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,8 +51,6 @@ class WeatherViewController: UIViewController, UITableViewDelegate, UITableViewD
         let cell = tableView.dequeueReusableCell(withIdentifier: "Weather Cell", for: indexPath) as UITableViewCell
         return cell
     }
-
-
 
 }
 

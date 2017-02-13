@@ -9,13 +9,22 @@
 import Foundation
 import Alamofire
 
+typealias Property = Dictionary<String, AnyObject>
+
 class CurrentWeather {
     private var _cityName: String?
     private var _date: String?
     private var _weatherType: String?
     private var _currentTemp: Double?
-    private var openWeather = OpenWeatherMap(latitude: 2.0, longitude: 2.0)
+    private var _image: UIImage?
+    private var openWeather = OpenWeatherMap(latitude: 20.0, longitude: 20.0)
 
+    var image: UIImage {
+        if _image == nil {
+            _image = UIImage()
+        }
+        return _image!
+    }
     var cityName: String {
         if _cityName == nil {
             _cityName = ""
@@ -42,9 +51,29 @@ class CurrentWeather {
         return _currentTemp!
     }
 
-    func downloadWeatherDetails(completed: ()->() ) {
+    func downloadWeatherDetails(completed: @escaping ()->() ) {
         Alamofire.request(openWeather.getURL!).responseJSON { response in
-            print(response)
+            if let result = response.result.value as? Property {
+                if let name = result["name"] as? String {
+                    self._cityName = name.capitalized
+                }
+                if let weather = result["weather"] as? [Property] {
+                    if let main = weather.first?["main"] as? String {
+                        self._weatherType = main.capitalized
+                    }
+                    if let icon = weather.first?["icon"] as? String {
+                        let imageData = try! Data(contentsOf: URL(string: self.openWeather.imgURLPrefix + icon + self.openWeather.imgExtension)!)
+                        self._image = UIImage(data: imageData)
+                    }
+                }
+                if let main = result["main"] as? Property {
+                    if let temp = main["temp"] as? Double {
+                        let tempInCelsius = temp - 273.15
+                        self._currentTemp = tempInCelsius
+                    }
+                }
+            }
+            completed()
         }
     }
 }
