@@ -18,21 +18,34 @@ struct OpenWeatherMap {
     let imgURLPrefix = "http://openweathermap.org/img/w/"
     let imgExtension = ".png"
     let apiVersion = "2.5"
-    let urlSuffix = "/weather?"
+    let urlWeatherPrefix = "/weather?"
+    let urlDailyForecastPrefix = "/forecast/daily?"
+    let numberOfDaysPrefix = "&cnt="
+    let numberOfDays = 10
     let latPrefix = "lat="
     let lonPrefix = "&lon="
     let appIDPrefix = "&appid="
     private let appID = "2ee10853d63f5912293970201aa04a75"
-    private var _latitude: Double
-    private var _longitude: Double
+    var latitude: Double
+    var longitude: Double
 
     init(latitude: Double, longitude: Double) {
-        _latitude = latitude
-        _longitude = longitude
+        self.latitude = latitude
+        self.longitude = longitude
     }
 
-    var getURL: URL? {
-        let urlString = urlPrefix + apiVersion + urlSuffix + latPrefix + "\(_latitude)" + lonPrefix + "\(_longitude)" + appIDPrefix + appID
+    var getForecastURL: URL? {
+        var urlString = urlPrefix + apiVersion + urlDailyForecastPrefix
+        urlString.append(latPrefix + "\(latitude)")
+        urlString.append(lonPrefix + "\(longitude)")
+        urlString.append(numberOfDaysPrefix + "\(numberOfDays)" + appIDPrefix + appID)
         return URL(string: urlString)
     }
+
+    var getWeatherURL: URL? {
+        let urlString = urlPrefix + apiVersion + urlWeatherPrefix + latPrefix + "\(latitude)" + lonPrefix + "\(longitude)" + appIDPrefix + appID
+        return URL(string: urlString)
+    }
+
+
 }

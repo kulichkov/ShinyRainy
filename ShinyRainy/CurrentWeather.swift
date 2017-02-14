@@ -17,7 +17,22 @@ class CurrentWeather {
     private var _weatherType: String?
     private var _currentTemp: Double?
     private var _image: UIImage?
-    private var openWeather = OpenWeatherMap(latitude: 20.0, longitude: 20.0)
+    private var openWeather: OpenWeatherMap!
+    private var _forecasts: [Forecast]?
+
+    init(latitude:Double, longitude: Double) {
+        self.openWeather = OpenWeatherMap(latitude: latitude, longitude: longitude)
+    }
+
+    func setCoordinates(latitude: Double, longitude:Double) {
+        openWeather?.longitude = longitude
+        openWeather?.latitude = latitude
+    }
+
+    var forecasts: [Forecast] {
+        if _forecasts == nil { _forecasts = [Forecast]() }
+        return _forecasts!
+    }
 
     var image: UIImage {
         if _image == nil {
@@ -51,8 +66,23 @@ class CurrentWeather {
         return _currentTemp!
     }
 
-    func downloadWeatherDetails(completed: @escaping ()->() ) {
-        Alamofire.request(openWeather.getURL!).responseJSON { response in
+    func downloadForecast(completed: @escaping () -> () ) {
+        Alamofire.request(openWeather.getForecastURL!).responseJSON { response in
+            if let result = response.result.value as? Property, let list = result["list"] as? [Property] {
+                if !self.forecasts.isEmpty {
+                    self._forecasts?.removeAll()
+                }
+                for eachForecast in list {
+                    let forecast = Forecast(property: eachForecast)
+                    self._forecasts?.append(forecast)
+                }
+            }
+            completed()
+        }
+    }
+
+    func downloadWeatherDetails(completed: @escaping () -> () ) {
+        Alamofire.request(openWeather.getWeatherURL!).responseJSON { response in
             if let result = response.result.value as? Property {
                 if let name = result["name"] as? String {
                     self._cityName = name.capitalized
@@ -75,5 +105,13 @@ class CurrentWeather {
             }
             completed()
         }
+    }
+}
+
+extension Date {
+    func weekdayName() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE"
+        return dateFormatter.string(from: self)
     }
 }
